@@ -17,7 +17,6 @@ extra-source-files:
   data/rt.c
 data-files:
   data/librt-*.a
-  test/golden/*.txt
 
 common base
   ghc-options: -Wall
@@ -57,6 +56,8 @@ test-suite compiler-studies-test
   -- other-extensions:
   type:             exitcode-stdio-1.0
   hs-source-dirs:   test
+  data-files:
+    test/golden/*.txt
   main-is:          Main.hs
   build-depends:
     , compiler-studies
