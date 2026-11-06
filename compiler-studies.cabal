@@ -1,0 +1,68 @@
+cabal-version:      3.12
+name:               compiler-studies
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            GPL-3.0-only
+license-file:       LICENSE
+author:             Marseille Bouchard Demko
+maintainer:         marseillebd@proton.me
+-- copyright:
+category:           Language
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+extra-source-files:
+  data/Makefile
+  data/rt-*.s
+  data/rt.c
+data-files:
+  data/librt-*.a
+  test/golden/*.txt
+
+common base
+  ghc-options: -Wall
+  build-depends:
+    , base ^>=4.20.2.0
+    , bytestring
+    , text
+    , mtl
+  default-language: Haskell2010
+  default-extensions:
+    OverloadedStrings
+
+library
+  import:           base
+  hs-source-dirs:   src
+  exposed-modules:
+    Compiler
+  -- other-modules:
+  -- other-extensions:
+  -- build-depends:
+
+executable compiler-studies
+  import:           base
+  main-is:          Main.hs
+  other-modules:
+    PackageInfo_compiler_studies
+  -- other-extensions:
+  build-depends:
+    , compiler-studies
+
+  hs-source-dirs:   app
+
+test-suite compiler-studies-test
+  import:           base
+  other-modules:
+    Paths_compiler_studies
+  -- other-extensions:
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Main.hs
+  build-depends:
+    , compiler-studies
+    , tasty
+    , tasty-golden
+    , directory
+    , filepath
+    , process
+    , temporary
