@@ -75,3 +75,9 @@ So, as the compiler runs, it builds up:
 - a table mapping module names to lists of sections
 - dependencies between sections based on import statements
 - names in the definitions are qualified and checked for visibility
+
+# Build Settings
+
+We know that we can select a frontend `-std=c11`, that we select a target `gcc-aarch64`, but a less-well-known thing is something I might call "route" or "pathway".
+Take ghc, where we can target native x64 but we can select llvm or ghc's own code generator as different ways to get there.
+
