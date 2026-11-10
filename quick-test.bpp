@@ -9,3 +9,7 @@ main() :: Word
 main() {
   42
 }
+
+other() {
+  67
+}
