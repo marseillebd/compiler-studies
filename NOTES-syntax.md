@@ -79,8 +79,7 @@ assoclist ::= ','                                                 # zero
 assocline ::= [comma] assoc { comma assoc } [comma]
 # assoclists mirror entrylists, since arglists are essentially a fusion of the two
 
-stmtlist ::= [ ';' ]                                       # zero
-          |  stmtline                                      # one or more
+stmtlist ::= [ ';' ] [ stmtline ]                          # zero or more
           |  indent [ stmtline { nl stmtline } ] dedent    # per-line
 stmtline ::= expression { semicolon expression } [semicolon]
 # statements do not need a semicolon to distinguish them from assoclists, since assoclists always have at least one comma

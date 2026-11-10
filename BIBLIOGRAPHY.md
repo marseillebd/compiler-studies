@@ -14,6 +14,7 @@ It took me way to
 
 Major:
 - [megaparsec](https://hackage.haskell.org/package/megaparsec)
+  - [Mark karpov's tutorial](https://markkarpov.com/tutorial/megaparsec.html)
 
 Executables and Tests:
 - [optparse-applicative](https://hackage.haskell.org/package/optparse-applicative)
