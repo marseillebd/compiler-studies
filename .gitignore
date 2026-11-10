@@ -1,2 +1,4 @@
 .*.swp
 dist-newstyle/
+quick-test.c
+quick-test

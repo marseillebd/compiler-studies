@@ -1,0 +1,11 @@
+# B++ will start with very low-level types:
+# - byte, the smallest addressable unit of memory
+# - word, an unsinged integer of width equal to the integer register size
+# - addr, a pointer (effectively still just an unsigned integer) of width large enough to address the whole address space
+#
+# on a modern desktop/server, a byte will be 8 bits, and word and address will be the same size
+
+main() :: Word
+main() {
+  42
+}
