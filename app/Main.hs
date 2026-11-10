@@ -1,20 +1,25 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Main (main) where
+
+import Prelude hiding (read)
 
 import Compiler
 
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad (forM_)
 import Control.Monad.Reader (ReaderT, runReaderT, MonadReader, asks)
-import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.Text (Text)
 import Data.Map.Ordered (OMap)
+import Data.IORef (IORef)
 
 import qualified Data.Text.IO as T
 import qualified Data.Map.Ordered as OMap
+import qualified Data.IORef as IO
 
 import System.Environment (getArgs)
 import System.IO (hPutStrLn, stderr)
@@ -26,16 +31,18 @@ main = runIOCompiler $ do
     [filepath] -> pure filepath
     other -> stringFatal $ show other
   compileFile filepath
-  allDefs <- liftIO . readIORef =<< asks (.definitions)
+  allDefs <- read =<< asks (.definitions)
   forM_ (OMap.assocs allDefs) $ \(defName, theDef) -> do
     liftIO $ putStrLn theDef
+
+------ The Monad ------
 
 newtype IOCompiler a = IOCompiler { unIOCompiler :: ReaderT Env IO a }
   deriving (Functor, Applicative, Monad, MonadReader Env, MonadIO)
 runIOCompiler :: IOCompiler a -> IO a
 runIOCompiler action = do
-  moduleCell <- newIORef "main"
-  defsCell <- newIORef OMap.empty
+  moduleCell <- new "Main"
+  defsCell <- new OMap.empty
   let st = Env
         { currentModule = moduleCell
         , definitions = defsCell
@@ -55,10 +62,23 @@ instance Compiler IOCompiler where
 
   startModule name = do
     cell <- asks (.currentModule)
-    liftIO $ writeIORef cell name
+    write cell name
   define name body = do
-    curMod <- asks (.currentModule) >>= liftIO . readIORef
+    curMod <- asks (.currentModule) >>= read
     defsCell <- asks (.definitions)
-    defs <- liftIO $ readIORef defsCell
-    let defs' = defs OMap.|> ((curMod, name), body)
-    liftIO $ writeIORef defsCell defs'
+    update defsCell $ (OMap.|> ((curMod, name), body))
+
+------ Helpers for Mutable State ------
+
+class Monad m => Ref m ref where
+  new :: a -> m (ref a)
+  read :: ref a -> m a
+  write :: ref a -> a -> m ()
+  update :: ref a -> (a -> a) -> m ()
+  update ref f = write ref =<< f <$> read ref
+
+instance MonadIO m => Ref m IORef where
+  new v = liftIO $ IO.newIORef v
+  read cell = liftIO $ IO.readIORef cell
+  write cell v = liftIO $ IO.writeIORef cell v
+
