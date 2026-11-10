@@ -16,9 +16,15 @@ there are a few decisions to be made:
 
 The intended audience is me. That was easy.
 
-The target languages is, well, I want to make a lot, so it realy doesn't matter what I choose.
+The source language is, well, I want to make a lot, so it realy doesn't matter what I choose.
 Forth, Scheme, C, a toy dependently-typed language, it doesn't really matter.
 The only thing is that I'm going to be putting off working on anything I want to get right, because that's when perfectionism slips in and messes up learning.
+
+The target language is C, at least for now.
+No, this doesn't exercise algorithms for register allocation or whatever, but I'm not so concerned.
+Abdulaziz doesn't exercice instruction selection, linking, and so on.
+A great many compilers (especially experimental ones) use C as a backend anyway.
+That said, I plan on using a quite restricted subset of C, so the output is very close to a portable assembly anyway.
 
 Finally, development language: it's Haskell.
 I'm incredibly familiar with it, it has lots of tools to write languages in.

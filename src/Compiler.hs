@@ -2,5 +2,7 @@ module Compiler where
 
 compileFile :: FilePath -> String -> String
 compileFile _filepath "" = unlines
-  [ ".text"
+  [ "int main(int argc, char* argv[], char* env[]) {"
+  , "  return 0;"
+  , "}"
   ]

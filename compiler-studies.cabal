@@ -11,12 +11,8 @@ maintainer:         marseillebd@proton.me
 category:           Language
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
-extra-source-files:
-  data/Makefile
-  data/rt-*.s
-  data/rt.c
-data-files:
-  data/librt-*.a
+-- extra-source-files:
+-- data-files:
 
 common base
   ghc-options: -Wall
