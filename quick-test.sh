@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 cabal build
 cabal run compiler-studies quick-test.bpp > quick-test.c
-cc -O2 quick-test.c -o quick-test
+cc -g -O0 quick-test.c -o quick-test
 set +e
 echo >&2 '===================================='
 ./quick-test
