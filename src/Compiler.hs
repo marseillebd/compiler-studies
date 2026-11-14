@@ -45,6 +45,11 @@ topLevel (Group (Call (Ident funcName) _) [Stmts stmts]) = do
       , "}"
       ]
     }
+topLevel (Group (Ident "var") (Ident varName : Ident "=" : expr)) = do
+  define varName Define
+    { decl = \name -> "extern int " ++ name ++ ";"
+    , defn = \name -> "int " ++ name ++ " = " ++ expression expr ++ ";"
+    }
 topLevel _other = pure ()
 
 statements :: String -> [Syntax] -> String
@@ -52,3 +57,7 @@ statements _ [] = ""
 statements resultVar [IntLit i] = concat
   [ resultVar, " = ", show i, ";" ]
 statements _ other = errorWithoutStackTrace $ show other
+
+expression :: [Syntax] -> String
+expression [IntLit i] = show i
+expression other = errorWithoutStackTrace $ show other

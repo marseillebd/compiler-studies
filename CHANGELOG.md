@@ -16,6 +16,10 @@ tentative roadmap:
 - **v0.0.3**: export/import (which means graph algos) (doesn't make sense until function calls, or at least variable names)
 - **v0.0.2**: multiple namespaces, compile a library or exe
 
+## 0.0.3.0 -- ????-??-??
+
+ISSUE: no tests for top-level expressions
+
 ## 0.0.2.0 -- ????-??-??
 
 * Compile multiple functions (all `() -> int`)
