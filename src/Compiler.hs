@@ -2,11 +2,12 @@ module Compiler where
 
 import Prelude hiding (readFile)
 
-import Syntax
+import qualified Syntax as S
 
 import Data.Text (Text)
+import Reader (Syntax(..))
 
-import qualified Parser as P
+import qualified Reader as P
 import qualified Text.Megaparsec as P
 
 class Monad m => Compiler m where
@@ -16,25 +17,13 @@ class Monad m => Compiler m where
   startModule :: String -> m ()
   define :: Text -> Define -> m ()
 
-compileFile :: Compiler m => FilePath -> m ()
-compileFile filepath = do
-  input <- readFile filepath
-  compileText filepath input
-
-compileText :: Compiler m => FilePath -> Text -> m ()
-compileText filepath input = do
-  ast <- case P.run P.topLevel filepath input of
-    Left err -> stringFatal $ P.errorBundlePretty err
-    Right ok -> pure ok
-  mapM_ topLevel ast
-
 data Define = Define
   { decl :: String -> String -- the C declaration to be emitted, parameterized by the name
   , defn :: String -> String -- the C definition to be emitted, parameterized by the name
   }
 
-topLevel :: Compiler m => Syntax -> m ()
-topLevel (Group (Call (Ident funcName) _) [Stmts stmts]) = do
+topLevel :: Compiler m => S.Definition -> m ()
+topLevel (S.Definition funcName stmts) = do
   define funcName Define
     { decl = \name -> "int " ++ name ++ "();"
     , defn = \name -> unlines
@@ -45,10 +34,12 @@ topLevel (Group (Call (Ident funcName) _) [Stmts stmts]) = do
       , "}"
       ]
     }
-topLevel _other = pure ()
 
-statements :: String -> [Syntax] -> String
+statements :: String -> [S.Statement] -> String
 statements _ [] = ""
-statements resultVar [IntLit i] = concat
-  [ resultVar, " = ", show i, ";" ]
+statements resultVar [S.ExprStmt expr] = concat
+  [ resultVar, " = ", expression expr, ";" ]
 statements _ other = errorWithoutStackTrace $ show other
+
+expression :: S.Expression -> String
+expression (S.IntExpr i) = show i

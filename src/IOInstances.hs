@@ -2,7 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module CompilerInstances where
+module IOInstances where
 
 import Prelude hiding (read)
 
@@ -10,7 +10,7 @@ import Compiler
 
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad.Reader (ReaderT, runReaderT, MonadReader, asks)
+import Control.Monad.Reader (ReaderT, runReaderT, MonadReader, ask, asks)
 import Data.IORef (IORef)
 import Data.Map.Ordered (OMap)
 import Data.Text (Text)
@@ -18,10 +18,25 @@ import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 import Control.Monad.Writer (execWriterT, tell)
 
+import qualified Syntax as S
 import qualified Data.IORef as IO
 import qualified Data.Map.Ordered as OMap
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
+
+------------------------------------
+
+newtype IOParser a = IOParser { unIOParser :: ReaderT FilePath IO a }
+  deriving (Functor, Applicative, Monad, MonadIO, MonadReader FilePath)
+
+runIOParser :: MonadIO io => IOParser a -> FilePath -> io a
+runIOParser action path = liftIO . flip runReaderT path $
+  unIOParser action
+
+instance S.Parser IOParser where
+  currentFilepath = ask
+
+------------------------------------
 
 newtype IOCompiler a = IOCompiler { unIOCompiler :: ReaderT Env IO a }
   deriving (Functor, Applicative, Monad, MonadReader Env, MonadIO)

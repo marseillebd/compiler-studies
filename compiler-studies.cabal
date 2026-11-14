@@ -27,16 +27,17 @@ common base
   default-extensions:
     OverloadedStrings
     OverloadedRecordDot
-    MultiWayIf
     LambdaCase
+    MultiWayIf
+    NamedFieldPuns
 
 library
   import:           base
   hs-source-dirs:   src
   exposed-modules:
     Compiler
-    CompilerInstances
-    Parser
+    IOInstances
+    Reader
     Syntax
   -- other-modules:
   -- other-extensions:
@@ -52,6 +53,7 @@ executable compiler-studies
   -- other-extensions:
   build-depends:
     , compiler-studies
+    , megaparsec
 
   hs-source-dirs:   app
 
@@ -71,6 +73,7 @@ test-suite compiler-studies-test
     , tasty-golden
     , tasty-hunit
     , hspec-megaparsec
+    , megaparsec
     , directory
     , filepath
     , process

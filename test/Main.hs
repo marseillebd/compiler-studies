@@ -1,7 +1,5 @@
 module Main (main) where
 
-import Syntax
-
 import Control.Exception
 import Paths_compiler_studies
 import System.Directory
@@ -14,10 +12,14 @@ import Test.Tasty.Golden
 
 import System.Exit (ExitCode(..))
 import Control.Monad (when)
+import Reader (Syntax(..), Arglist(..))
+import Data.Text (Text)
 
 import qualified Compiler
-import qualified CompilerInstances as Compiler
-import qualified Parser as P
+import qualified IOInstances as IO
+import qualified Reader as R
+import qualified Syntax as S
+import qualified Text.Megaparsec as MP
 
 main :: IO ()
 main = do
@@ -30,7 +32,8 @@ main = do
 
 testMain :: FilePath -> FilePath -> TestTree
 testMain dataDir tmpDir = testGroup "all"
-  [ parserTests
+  [ readerTests
+  , parserTests
   , goldenTests dataDir tmpDir
   ]
 
@@ -43,9 +46,9 @@ goldenTests dataDir tmpDir = testGroup "integration"
 
 testEmpty :: FilePath -> FilePath -> TestTree
 testEmpty dataDir tmpDir = goldenVsFile "empty file" golden cFile $ do
-  cProgram <- Compiler.runIOCompiler $ do
+  cProgram <- IO.runIOCompiler $ do
     Compiler.compileText "nowhere" ""
-    Compiler.stringIOCompiler
+    IO.stringIOCompiler
   writeFile cFile cProgram
   where
   golden = dataDir </> "test" </> "golden" </> "empty.c"
@@ -53,9 +56,9 @@ testEmpty dataDir tmpDir = goldenVsFile "empty file" golden cFile $ do
 
 ------------------------------------
 
-parserTests :: TestTree
-parserTests = testGroup "parser"
-  [ let parse = P.run P.ident ""
+readerTests :: TestTree
+readerTests = testGroup "reader"
+  [ let parse = R.run R.ident ""
     in testGroup "identifiers"
     [ testCase "asciinum identifier" $
         parse "xyz23" `shouldParse` "xyz23"
@@ -68,7 +71,7 @@ parserTests = testGroup "parser"
     , testCase "do not start with (optinoal sign and) digit" $
         parse `shouldFailOn` "+2"
     ]
-  , let parse = P.run P.intLit ""
+  , let parse = R.run R.intLit ""
     in testGroup "integers"
     [ testCase "a basic integer" $
         parse "42" `shouldParse` 42
@@ -77,17 +80,17 @@ parserTests = testGroup "parser"
     ]
   , testGroup "whitespace"
     [ testCase "standard blank line" $
-        P.run P.endLine "" "  \n" `shouldParse` ()
+        R.run R.endLine "" "  \n" `shouldParse` ()
     , testCase "empty blank line" $
-        P.run P.endLine "" "" `shouldParse` ()
+        R.run R.endLine "" "" `shouldParse` ()
     , testCase "near-empty blank line" $
-        P.run P.endLine "" "\n" `shouldParse` ()
+        R.run R.endLine "" "\n" `shouldParse` ()
     , testCase "comment-only line" $
-        P.run P.endLine "" "   # hello\n" `shouldParse` ()
+        R.run R.endLine "" "   # hello\n" `shouldParse` ()
     , testCase "comment-only line eof" $
-        P.run P.endLine "" "   # hello" `shouldParse` ()
+        R.run R.endLine "" "   # hello" `shouldParse` ()
     ]
-  , let parse = P.run P.topLevel ""
+  , let parse = R.run R.topLevel ""
     in testGroup "files"
     [ testCase "empty file" $
         parse "" `shouldParse` []
@@ -111,3 +114,25 @@ parserTests = testGroup "parser"
         ]
     ]
   ]
+
+parserTests :: TestTree
+parserTests = testGroup "parser"
+  [ let shouldBe = mkTester (R.topLevel, S.parseTopLevel)
+    in testGroup "topLevel"
+    [ testCase "empty" $
+      "" `shouldBe` []
+    , testCase "define `() -> int`" $
+      "main() {\n  42\n}" `shouldBe` [S.Definition
+        { S.name = "main"
+        , S.defn = [S.ExprStmt $ S.IntExpr 42]
+        }]
+    ]
+  ]
+  where
+  mkTester :: (Eq a, Show a) => (R.Parser b, b -> IO.IOParser a) -> Text -> a -> Assertion
+  mkTester (reader, parser) input expected = do
+    syntax <- case R.run reader "" input of
+      Left e -> assertFailure $ MP.errorBundlePretty e
+      Right ok -> pure ok
+    actual <- IO.runIOParser (parser syntax) ""
+    actual @?= expected

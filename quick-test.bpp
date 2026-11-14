@@ -5,7 +5,7 @@
 #
 # on a modern desktop/server, a byte will be 8 bits, and word and address will be the same size
 
-main() :: Word
+# main() :: Word
 main() {
   42
 }

@@ -1,9 +1,8 @@
-module Parser where
+module Reader where
 
 import Control.Monad (when, void)
 import Data.Text (Text)
 import Data.Void (Void)
-import Syntax
 
 import Data.Function ((&))
 import Control.Monad.State (StateT, evalStateT, gets, modify)
@@ -12,7 +11,22 @@ import qualified Data.Text as T
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as P
-import qualified Control.Monad.Combinators as P
+
+data Syntax
+  = Ident Text
+  | IntLit Integer
+  | Group Syntax [Syntax]
+  | Call Syntax Arglist
+  | Stmts [Syntax]
+  deriving (Eq, Show)
+
+data Arglist = Arglist
+  { positional :: [Syntax]
+  -- , keyword :: Map Text Syntax TODO
+  }
+  deriving (Eq, Show)
+
+------------------------------
 
 type Parser a = StateT Indent (P.Parsec Void Text) a
 type Result a = Either (P.ParseErrorBundle Text Void) a
