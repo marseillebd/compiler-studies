@@ -6,7 +6,6 @@ import Syntax
 
 import Data.Text (Text)
 
-import qualified Data.Text as T
 import qualified Parser as P
 import qualified Text.Megaparsec as P
 
@@ -20,6 +19,10 @@ class Monad m => Compiler m where
 compileFile :: Compiler m => FilePath -> m ()
 compileFile filepath = do
   input <- readFile filepath
+  compileText filepath input
+
+compileText :: Compiler m => FilePath -> Text -> m ()
+compileText filepath input = do
   ast <- case P.run P.topLevel filepath input of
     Left err -> stringFatal $ P.errorBundlePretty err
     Right ok -> pure ok
@@ -49,5 +52,3 @@ statements _ [] = ""
 statements resultVar [IntLit i] = concat
   [ resultVar, " = ", show i, ";" ]
 statements _ other = errorWithoutStackTrace $ show other
-
-

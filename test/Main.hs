@@ -7,7 +7,6 @@ import Paths_compiler_studies
 import System.Directory
 import System.FilePath
 import System.IO.Temp
-import System.Process
 import Test.Hspec.Megaparsec
 import Test.Tasty
 import Test.Tasty.HUnit
@@ -17,6 +16,7 @@ import System.Exit (ExitCode(..))
 import Control.Monad (when)
 
 import qualified Compiler
+import qualified CompilerInstances as Compiler
 import qualified Parser as P
 
 main :: IO ()
@@ -42,19 +42,14 @@ goldenTests dataDir tmpDir = testGroup "integration"
   ]
 
 testEmpty :: FilePath -> FilePath -> TestTree
-testEmpty dataDir tmpDir = goldenVsFile "empty file" golden output $ do
-  librt <- getDataFileName "data/librt-x64-linux.a"
-  writeFile asmFile $ Compiler.compileFile "nowhere" ""
-  callProcess "as" [ asmFile, "-o", objFile ]
-  callProcess "ld" [ objFile, librt, "-o", exeFile]
-  writeFile output =<<
-    readCreateProcess (proc exeFile [] ) ""
+testEmpty dataDir tmpDir = goldenVsFile "empty file" golden cFile $ do
+  cProgram <- Compiler.runIOCompiler $ do
+    Compiler.compileText "nowhere" ""
+    Compiler.stringIOCompiler
+  writeFile cFile cProgram
   where
-  golden = dataDir </> "test" </> "golden" </> "empty.txt"
-  asmFile = tmpDir </> "empty.s"
-  objFile = tmpDir </> "empty.o"
-  exeFile = tmpDir </> "empty.exe"
-  output = tmpDir </> "empty.txt"
+  golden = dataDir </> "test" </> "golden" </> "empty.c"
+  cFile = tmpDir </> "empty.c"
 
 ------------------------------------
 
