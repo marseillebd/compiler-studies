@@ -12,7 +12,8 @@ category:           Language
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
--- data-files:
+data-files:
+  test/golden/*.txt
 
 common base
   ghc-options: -Wall
@@ -64,8 +65,6 @@ test-suite compiler-studies-test
   -- other-extensions:
   type:             exitcode-stdio-1.0
   hs-source-dirs:   test
-  data-files:
-    test/golden/*.txt
   main-is:          Main.hs
   build-depends:
     , compiler-studies

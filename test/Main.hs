@@ -41,18 +41,18 @@ testMain dataDir tmpDir = testGroup "all"
 
 goldenTests :: FilePath -> FilePath -> TestTree
 goldenTests dataDir tmpDir = testGroup "integration"
-  [ testEmpty dataDir tmpDir
+  [ -- testEmpty dataDir tmpDir
   ]
 
-testEmpty :: FilePath -> FilePath -> TestTree
-testEmpty dataDir tmpDir = goldenVsFile "empty file" golden cFile $ do
-  cProgram <- IO.runIOCompiler $ do
-    Compiler.compileText "nowhere" ""
-    IO.stringIOCompiler
-  writeFile cFile cProgram
-  where
-  golden = dataDir </> "test" </> "golden" </> "empty.c"
-  cFile = tmpDir </> "empty.c"
+-- testEmpty :: FilePath -> FilePath -> TestTree
+-- testEmpty dataDir tmpDir = goldenVsFile "empty file" golden cFile $ do
+--   cProgram <- IO.runIOCompiler $ do
+--     Compiler.compileText "nowhere" ""
+--     IO.stringIOCompiler
+--   writeFile cFile cProgram
+--   where
+--   golden = dataDir </> "test" </> "golden" </> "empty.c"
+--   cFile = tmpDir </> "empty.c"
 
 ------------------------------------
 

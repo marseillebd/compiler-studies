@@ -20,13 +20,17 @@ tentative roadmap:
 ## 0.0.2.0 -- ????-??-??
 
 TODO: (all about architecture)
+- interpreter
 - multiple backends (C and QBE, later x64)
-- compile a library (only)
 
+* compile a library instead of an executable:
+  this should make it easier to target environments with a "non-standard" host,
+  like a bootloader, or WASM in the browser, or plugins for editors/games/&c.
 * split reader and parser apart from "Compiler" backend
 * Compile multiple functions (all `() -> int`)
 
 * ISSUE: no tests for the top-level functions
+* ISSUE: test files are included in package-level data files, instead of local to test
 
 ## 0.0.1.0 -- 2026-11-09
 

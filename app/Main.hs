@@ -47,12 +47,6 @@ main = IO.runIOCompiler $ do
     forM_ (OMap.assocs allDefs) $ \((modName, defName), theDef) -> do
       let mangledName = modName ++ "_" ++ T.unpack defName
       liftIO . putStrLn $ theDef.defn mangledName
-    liftIO $ putStrLn ""
-    liftIO $ putStrLn $ unlines
-      [ "int main() {"
-      , "  return Main_main();"
-      , "}"
-      ]
 
 
 ------ The Monad ------
