@@ -20,9 +20,9 @@ tentative roadmap:
 ## 0.0.2.0 -- ????-??-??
 
 TODO: (all about architecture)
-- interpreter
 - multiple backends (C and QBE, later x64)
 
+* interpreter (kinda, I took a lot of shortcuts)
 * compile a library instead of an executable:
   this should make it easier to target environments with a "non-standard" host,
   like a bootloader, or WASM in the browser, or plugins for editors/games/&c.

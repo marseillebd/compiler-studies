@@ -36,10 +36,11 @@ library
   import:           base
   hs-source-dirs:   src
   exposed-modules:
-    Compiler
     IOInstances
     Reader
     Syntax
+    Interpreter
+    Compiler
   -- other-modules:
   -- other-extensions:
   build-depends:

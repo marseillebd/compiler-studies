@@ -19,6 +19,7 @@ import qualified Compiler
 import qualified IOInstances as IO
 import qualified Reader as R
 import qualified Syntax as S
+import qualified Interpreter as I
 import qualified Text.Megaparsec as MP
 
 main :: IO ()
@@ -34,6 +35,7 @@ testMain :: FilePath -> FilePath -> TestTree
 testMain dataDir tmpDir = testGroup "all"
   [ readerTests
   , parserTests
+  , interpreterTests
   , goldenTests dataDir tmpDir
   ]
 
@@ -135,4 +137,20 @@ parserTests = testGroup "parser"
       Left e -> assertFailure $ MP.errorBundlePretty e
       Right ok -> pure ok
     actual <- IO.runIOParser (parser syntax) ""
+    actual @?= expected
+
+interpreterTests :: TestTree
+interpreterTests = testGroup "interpreter"
+  [ testCase "forty-two" $
+    "main() {\n  42\n}" `shouldBe` I.IntVal 42
+  , testCase "siz-seven" $
+    "main() {\n  67\n}" `shouldBe` I.IntVal 67
+  ]
+  where
+  shouldBe input expected = do
+    syntax <- case R.run R.topLevel "" input of
+      Left e -> assertFailure $ MP.errorBundlePretty e
+      Right ok -> pure ok
+    ast <- IO.runIOParser (S.parseTopLevel syntax) ""
+    let actual = I.evalEntrypoint "main" ast
     actual @?= expected
