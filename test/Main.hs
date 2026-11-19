@@ -125,7 +125,8 @@ parserTests = testGroup "parser"
       "" `shouldBe` []
     , testCase "define `() -> int`" $
       "main() {\n  42\n}" `shouldBe` [S.Definition
-        { S.name = "main"
+        { S.namespace = ["Main"]
+        , S.name = "main"
         , S.defn = [S.ExprStmt $ S.IntExpr 42]
         }]
     ]

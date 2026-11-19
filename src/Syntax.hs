@@ -14,7 +14,8 @@ data Module = Module
   deriving (Eq, Show)
 
 data Definition = Definition
-  { name :: Text
+  { namespace :: [Text]
+  , name :: Text
   , defn :: [Statement]
   }
   deriving (Eq, Show)
@@ -37,7 +38,8 @@ parseTopLevel defs = forM defs $ \case
   Group (Call (Ident name) _) [Stmts stmts] -> do
     defn <- forM stmts parseStatement
     pure $ Definition
-      { name
+      { namespace = ["Main"]
+      , name
       , defn
       }
 

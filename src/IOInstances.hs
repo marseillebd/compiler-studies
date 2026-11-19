@@ -42,17 +42,15 @@ newtype IOCompiler a = IOCompiler { unIOCompiler :: ReaderT Env IO a }
   deriving (Functor, Applicative, Monad, MonadReader Env, MonadIO)
 runIOCompiler :: IOCompiler a -> IO a
 runIOCompiler action = do
-  moduleCell <- new "Main"
-  defsCell <- new OMap.empty
+  -- moduleCell <- new "Main"
+  -- defsCell <- new OMap.empty
   let st = Env
-        { currentModule = moduleCell
-        , definitions = defsCell
+        { 
         }
   runReaderT action.unIOCompiler st
 
 data Env = Env
-  { currentModule :: IORef String
-  , definitions :: IORef (OMap (String, Text) Define)
+  { 
   }
 
 instance Compiler IOCompiler where
@@ -60,31 +58,6 @@ instance Compiler IOCompiler where
   stringFatal msg = do
     _ <- liftIO $ hPutStrLn stderr msg
     liftIO exitFailure
-
-  startModule name = do
-    cell <- asks (.currentModule)
-    write cell name
-  define name body = do
-    curMod <- asks (.currentModule) >>= read
-    defsCell <- asks (.definitions)
-    update defsCell $ (OMap.|> ((curMod, name), body))
-
-stringIOCompiler :: IOCompiler String
-stringIOCompiler = execWriterT $ do
-  allDefs <- read =<< asks (.definitions)
-  forM_ (OMap.assocs allDefs) $ \((modName, defName), theDef) -> do
-    let mangledName = modName ++ "_" ++ T.unpack defName
-    tell $ theDef.decl mangledName
-  tell ""
-  forM_ (OMap.assocs allDefs) $ \((modName, defName), theDef) -> do
-    let mangledName = modName ++ "_" ++ T.unpack defName
-    tell $ theDef.defn mangledName
-  tell ""
-  tell $ unlines
-    [ "int main() {"
-    , "  return Main_main();"
-    , "}"
-    ]
 
 ------ Helpers for Mutable State ------
 
